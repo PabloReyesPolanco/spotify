@@ -1,0 +1,7 @@
+requests
+pendulum
+pandas
+tqdm
+loguru
+beautifulsoup
+environs
