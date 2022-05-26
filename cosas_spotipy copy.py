@@ -44,9 +44,13 @@ def crear_base():
     df_out.position = pd.to_numeric(df_out.position) 
     df_out = df_out.sort_values("start")
     df_out.index = [i for i in range(len(df_out))]
+    # df_out = df_out.iloc[0:10]
+    # df_out = df_out.iloc[0:10]
     sp = login()
 
     df_aux = df_out[["track_name","artist","url"]]
+    df_aux = df_aux.drop_duplicates("track_name")
+    df_aux = df_aux.reset_index(drop = True)
 
     for i in range(len(df_aux)//100+1):
         inicio = 0 + i*100
@@ -76,9 +80,13 @@ def crear_base():
     tracks = df_aux["track_name"].to_list()
     total = len(tracks)
 
-    for i, track in enumerate(tracks):
-        print(f"{i+1}/{total}")
-        df_out.loc[df_out["track_name"] == track, params] = df_aux.loc[df_aux["track_name"] == track, params].mode()
+    df_aux.drop(["artist","url"], axis =1)
+    df_out = pd.merge(df_out, df_aux, on="track_name")
+    df_out = df_out.sort_values(["start","position"], ascending = ["True","True"])
+    print("ejo")
+    #for i, track in enumerate(tracks):
+    #    print(f"{i+1}/{total} {track}")
+    #    df_out.loc[df_out["track_name"] == track, params] = df_aux.loc[df_aux["track_name"] == track, params].to_numpy
     return df_out
 
 def main():
