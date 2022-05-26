@@ -46,13 +46,13 @@ def crear_base():
     df_out.index = [i for i in range(len(df_out))]
     sp = login()
 
-    df_out = df_out[["track_name","artist","url"]]
+    df_aux = df_out[["track_name","artist","url"]]
 
-    for i in range(len(df_out)//100+1):
+    for i in range(len(df_aux)//100+1):
         inicio = 0 + i*100
-        final = min(99+i*100, len(df_out)-1)
-        print(f"{inicio}-{final}/{len(df_out)}")
-        df_out.loc[inicio:final,"features"] = sp.audio_features(df_out.loc[inicio:final,"url"].tolist())
+        final = min(99+i*100, len(df_aux)-1)
+        print(f"{inicio}-{final}/{len(df_aux)}")
+        df_aux.loc[inicio:final,"features"] = sp.audio_features(df_aux.loc[inicio:final,"url"].tolist())
 
     params = [
         "danceability",
@@ -71,19 +71,19 @@ def crear_base():
         ]
 
     for p in params:
-        df_out.loc[:,p] = df_out["features"].map( lambda x: x[p])
+        df_aux.loc[:,p] = df_aux["features"].map( lambda x: x[p])
     
-    tracks = df_out["track_name"].to_list()
+    tracks = df_aux["track_name"].to_list()
     total = len(tracks)
 
     for i, track in enumerate(tracks):
         print(f"{i+1}/{total}")
-        df_out.loc[df_out["track_name"] == track, params] = df_out.loc[df_out["track_name"] == track, params].mode()
+        df_out.loc[df_out["track_name"] == track, params] = df_aux.loc[df_aux["track_name"] == track, params].mode()
     return df_out
 
 def main():
     df_out = crear_base()
-    df_out.to_csv("spotify weekly top200.csv", index = False)
+    df_out.to_csv("Spotify Weekly.csv", index = False)
 
 if __name__ == "__main__":
     print("comenzando")
