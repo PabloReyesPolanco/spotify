@@ -22,8 +22,7 @@ spotify_palette = [
                 ]
 palette = sns.color_palette(spotify_palette, 5)
 
-aa =  ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_s']
-a2 = ['danceability', 'energy', 'loudness', 'speechiness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration_s']
+aa =  ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo', 'duration']
 
 def heatmap(df, nombre, vars = aa):
     df = df[vars]
@@ -146,16 +145,43 @@ def var_mensual(mensual, n):
     plt.savefig(f"figuras/Primeros {n} meses vs el resto")
     plt.close()
 
+def graficar(df, mensual, semanal):
+    for i in range(9,12):
+        var_mensual(mensual, i)
+
+    for i in aa:
+        time_series(mensual.reset_index(), i, nombre = f"figuras/series tiempo mensual/timeserie {i}", aux = False)
+
+    heatmap(mensual, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
+    heatmap(df, vars = aa + ["position"], nombre = "figuras/mapas calor/heatmap global")
+
+    for i in aa:
+        histogram(semanal, i, nombre = f"figuras/histogramas/hist {i}")
+
+    for it, var1 in enumerate(aa):
+        for var2 in aa[it+1:]:
+            reg_plot(semanal, var1, var2, nombre = f"figuras/regresion semanal/reg_week {var1} vs {var2}")
+
+    for it, var1 in enumerate(aa):
+        for var2 in aa[it+1:]:
+            reg_plot(df, var1, var2, nombre = f"figuras/regresion global/reg_global {var1} vs {var2}")
+
+    for i in aa:
+        time_series(semanal, i, trendline = True, rolling_average = True, rolling_size = 4, nombre = f"figuras/series tiempo semanal/timeseries {i}")
+
+    for i in aa:
+        time_series(df, i, trendline = "True", nombre = f"figuras/series tiempo global/timeserie_global {i}")
+    acotados = ["danceability", "duration_s","energy","instrumentalness","tempo"]
+    heatmap(semanal, vars = acotados, nombre = "figuras/mapas calor/heatmap acotado")
+
 def main():
     df = pd.read_csv("https://raw.githubusercontent.com/PabloReyesPolanco/spotify/master/Spotify%20Weekly.csv")
     df = df.drop(["url","time_signature","key","mode"], axis = 1)
     df = df[df.year > 2016]
     df = df.dropna(axis = 0)
-    df["duration_s"] = df["duration_ms"]/1000
+    df["duration"] = df["duration_ms"]
     df = df.sort_values(["start","position"])
     df['start'] = pd.to_datetime(df['start'], format = '%Y-%m-%d')
-    #df.columns = ["posición", "año", "semana","semana_fin", "nombre_canción", "artista", "reproducciones", "danzabilidad", "energía", "volumen", "habladuría", "acusticidad", "instrumentalidad", "viveza", "valencia", "tempo", "duracion_ms", "duracion_s", "duracion_m,"]
-
     df.reset_index(drop=True, inplace=True)
 
     semanal = df.groupby("start", as_index = False).agg(
@@ -168,7 +194,7 @@ def main():
         liveness = ("liveness","mean"),
         valence = ("valence","mean"),
         tempo = ("tempo","mean"),
-        duration_s = ("duration_s","mean")
+        duration = ("duration","mean")
         )
 
     semanal["id"] = [i for i in range(len(semanal))]
