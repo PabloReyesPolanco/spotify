@@ -28,20 +28,20 @@ def heatmap(df, nombre, vars = aa):
     df = df[vars]
     cormat = df.corr()
     f, ax = plt.subplots(figsize=(10,8))
-    sns.heatmap(cormat, vmax= .85, square=True).set(title=nombre.title())
+    sns.heatmap(cormat, vmax= .85, square=True).set_title(nombre.title(), fontsize = 30)
     k = 10
     cols = cormat.nlargest(k,vars[2])[vars[2]].index
     cm = np.corrcoef(df[cols].values.T)
     sns.set(font_scale=1.25)
     hm = sns.heatmap(cm, cbar=False, annot=True, square=True, fmt=".2f", annot_kws={"size": 10}, yticklabels=cols.values, xticklabels=cols.values)
     plt.show()
-    plt.savefig("figuras/mapas calor/"+ nombre, transparent = False)
+    plt.savefig("figuras/heatmaps/"+ nombre, transparent = False)
     plt.close()
 
 def pairplot(df, vars, nombre):
-    sns.pairplot(df[vars]).set(title=nombre.title())
+    sns.pairplot(df[vars]).set_title(nombre.title(), fontsize = 30)
     # plt.show()
-    plt.savefig(nombre, transparent = False)
+    plt.savefig("figuras/pairplots/"+ nombre, transparent = False)
     plt.close()
 
 def histogram(df, var, nombre):
@@ -49,13 +49,13 @@ def histogram(df, var, nombre):
     f, ax = plt.subplots(1,1, figsize = (10,8))#graph histogram
     plt.hist(df[var], bins=10, alpha=0.75, color = spotify_green , label=var.title())
     plt.legend(loc='upper right')#set title & axis titles
-    ax.set_title(f'{var.title()} Histogram', fontsize=20)
+    ax.set_title(f'{var.title()} Histogram', fontsize=30)
     ax.set_xlabel(var.title())
     ax.set_ylabel('Frequency')#set x & y ranges
     # plt.xlim(0,1)
     # plt.ylim(0, len())
     # plt.show()
-    plt.savefig(nombre, transparent = False)
+    plt.savefig("figuras/histograms/"+nombre, transparent = False)
     plt.close()
 
 def reg_plot(df, var1, var2, nombre):
@@ -63,15 +63,15 @@ def reg_plot(df, var1, var2, nombre):
     corr = pearsonr(df[var1], df[var2])
     corr = [np.round(c, 2) for c in corr] #add the coefficient to your graph
     text = 'r=%s' % (corr[0])
-    sns.regplot(x=var1, y=var2, data=df, color = spotify_green).set(title= nombre.title())
+    sns.regplot(x=var1, y=var2, data=df, color = spotify_green).set_title(nombre.title(), fontsize = 30)
     ax.legend([text])
-    plt.savefig(nombre, transparent = False)
+    plt.savefig("figuras/regressions/"+ nombre, transparent = False)
     plt.close()
 
 def time_series(data, var, nombre ,trendline = False, rolling_average = False, IC = False,rolling_size = 4, aux = True):
     fig, ax = plt.subplots(figsize = (16,10))
     labels = []
-    sns.lineplot(data = data, x = "start", y = var , color = spotify_green).set(title = nombre.title())
+    sns.lineplot(data = data, x = "start", y = var , color = spotify_green).set_title(nombre.title(), fontsize = 30)
     labels.append(var)
 
     if rolling_average:
@@ -91,7 +91,6 @@ def time_series(data, var, nombre ,trendline = False, rolling_average = False, I
             sns.lineplot(data = data, x = "start", y = "inf", color = "red")
 
     if aux:
-
         years = md.YearLocator()   # every year
         months = md.MonthLocator()  # every month
         years_fmt = md.DateFormatter('%Y-%m')
@@ -111,19 +110,19 @@ def time_series(data, var, nombre ,trendline = False, rolling_average = False, I
     plt.xticks(rotation = 'vertical')
     plt.legend(labels=labels)
     # plt.show()
-    plt.savefig(nombre, transparent = False)
+    plt.savefig("figuras/timeseries/"+nombre, transparent = False)
     plt.close()
 
 def barplot(df, var, nombre = f"a"):
 
     fig, ax = plt.subplots(figsize = (16,10))
-    sns.barplot(data = df, x = "start", y = var , color = spotify_green, estimator=np.mean, ci=95,capsize=.2).set(title = nombre.title())
+    sns.barplot(data = df, x = "start", y = var , color = spotify_green, estimator=np.mean, ci=95,capsize=.2).set_title(nombre.title(), fontsize = 30)
     plt.xticks(rotation = 'vertical')
     # plt.legend(labels=labels)
     # plt.show()
     std = df[var].std()
     plt.ylim(min(df[var]-std), max[df[var]]+std)
-    plt.savefig(nombre, transparent = False)
+    plt.savefig("figuras/barplots/"+nombre, transparent = False)
     plt.close()
 
 def var_mensual(mensual, n):
@@ -145,7 +144,7 @@ def var_mensual(mensual, n):
         ci = "sd",
         data=aux,
         hue = "periodo",
-        palette = [spotify_green, spotify_blue]).set(title = f"Primeros {n} meses vs el resto".title())
+        palette = [spotify_green, spotify_blue]).set_title(f"Primeros {n} meses vs el resto".title(), fontsize = 30)
     plt.savefig(f"figuras/Primeros {n} meses vs el resto")
     plt.close()
 
@@ -157,37 +156,38 @@ def song_plot(df, name, var = "streams"):
     pal = sns.cubehelix_palette(start=2, rot=0, dark=0.4, light=0.4, reverse=True, as_cmap=True)
     sns.lineplot(x = "start", y = var, data = sng,
                 hue=sng[var].isna().cumsum(),legend=False,
-                markers=True, palette = pal).set(title = f"{name} - {var}" )
+                markers=True, palette = pal).set_title(f"{name} - {var}", fontsize = 30)
     plt.savefig(f"figuras/canciones/{name} - {var}")
+    plt.close()
 
 def graficar(df, mensual, semanal):
     for i in range(9,12):
         var_mensual(mensual, i)
 
     for i in aa:
-        time_series(mensual.reset_index(), i, nombre = f"figuras/series de tiempo/timeserie {i}", aux = False)
+        time_series(mensual.reset_index(), i, nombre = f" {i}", aux = False)
 
     heatmap(semanal, vars = aa, nombre = "heatmap semanal")
     heatmap(df, vars = aa + ["position"], nombre = "heatmap global")
 
     for i in aa:
-        histogram(semanal, i, nombre = f"figuras/histogramas/hist {i}")
+        histogram(semanal, i, nombre = f"histograma {i} (semanal)")
 
     for it, var1 in enumerate(aa):
         for var2 in aa[it+1:]:
-            reg_plot(semanal, var1, var2, nombre = f"figuras/regresion semanal/reg_week {var1} vs {var2}")
+            reg_plot(semanal, var1, var2, nombre = f"regresion {var1} vs {var2} (semanal)")
 
     for it, var1 in enumerate(aa):
         for var2 in aa[it+1:]:
-            reg_plot(df, var1, var2, nombre = f"figuras/regresion global/reg_global {var1} vs {var2}")
+            reg_plot(df, var1, var2, nombre = f"regresion {var1} vs {var2} (global)")
 
     for i in aa:
-        time_series(semanal, i, trendline = True, rolling_average = True, rolling_size = 4, nombre = f"figuras/series tiempo semanal/timeseries {i}")
+        time_series(semanal, i, trendline = True, rolling_average = True, rolling_size = 4, nombre = f"serie de tiempo {i} (semanal)")
 
     for i in aa:
-        time_series(df, i, trendline = "True", nombre = f"figuras/series tiempo global/timeserie_global {i}")
+        time_series(df, i, trendline = "True", nombre = f"serie de tiempo {i} (global)")
     acotados = ["danceability", "duration","energy","instrumentalness","tempo"]
-    heatmap(semanal, vars = acotados, nombre = "figuras/mapas calor/heatmap acotado")
+    heatmap(semanal, vars = acotados, nombre = "heatmap acotado")
 
 def main():
     df = pd.read_csv("https://raw.githubusercontent.com/PabloReyesPolanco/spotify/master/Spotify%20Weekly.csv")
@@ -224,33 +224,12 @@ def main():
     # (mensual-mensual.min())/(mensual.max()-mensual.min())
     mensual.insert(0, "start", aux)
 
-    for i in range(9,12):
-        var_mensual(mensual, i)
-
-    for i in aa:
-        time_series(mensual.reset_index(), i, nombre = f"figuras/series tiempo mensual/timeserie {i}", aux = False)
-
-    heatmap(semanal, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
-    heatmap(df, vars = aa + ["position"], nombre = "figuras/mapas calor/heatmap global")
-
-    for i in aa:
-        histogram(semanal, i, nombre = f"figuras/histogramas/hist {i}")
-
-    for it, var1 in enumerate(aa):
-        for var2 in aa[it+1:]:
-            reg_plot(semanal, var1, var2, nombre = f"figuras/regresion semanal/reg_week {var1} vs {var2}")
-
-    for it, var1 in enumerate(aa):
-        for var2 in aa[it+1:]:
-            reg_plot(df, var1, var2, nombre = f"figuras/regresion global/reg_global {var1} vs {var2}")
-
-    for i in aa:
-        time_series(semanal, i, trendline = True, rolling_average = True, rolling_size = 4, nombre = f"figuras/series tiempo semanal/timeseries {i}")
-
-    for i in aa:
-        time_series(df, i, trendline = "True", nombre = f"figuras/series tiempo global/timeserie_global {i}")
-    acotados = ["danceability", "duration","energy","instrumentalness","tempo"]
-    heatmap(semanal, vars = acotados, nombre = "figuras/mapas calor/heatmap acotado")
+    graficar(df, mensual, semanal)
+    canciones = ["All I Want for Christmas Is You", "Levitating", "Beggin'", "WAP (feat. Megan Thee Stallion)", "Dance Monkey"]
+    var = ["position", "streams"] 
+    for c in canciones:
+        for v in var:
+            song_plot(df, name = c, var = v)
 
 if __name__ == "__main__":
     main()
