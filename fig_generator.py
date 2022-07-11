@@ -182,7 +182,7 @@ def graficar(df, mensual, semanal):
             reg_plot(df, var1, var2, nombre = f"regresion {var1} vs {var2} (global)")
 
     for i in aa:
-        time_series(semanal, i, trendline = True, rolling_average = True, rolling_size = 4, nombre = f"serie de tiempo {i} (semanal)")
+        time_series(semanal, i, trendline = True, nombre = f"serie de tiempo {i} (semanal)")
 
     for i in aa:
         time_series(df, i, trendline = "True", nombre = f"serie de tiempo {i} (global)")
