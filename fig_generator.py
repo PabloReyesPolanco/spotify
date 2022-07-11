@@ -34,7 +34,7 @@ def heatmap(df, nombre, vars = aa):
     cm = np.corrcoef(df[cols].values.T)
     sns.set(font_scale=1.25)
     hm = sns.heatmap(cm, cbar=False, annot=True, square=True, fmt=".2f", annot_kws={"size": 10}, yticklabels=cols.values, xticklabels=cols.values)
-    # plt.show()
+    plt.show()
     plt.savefig(nombre, transparent = False)
     plt.close()
 
@@ -145,6 +145,15 @@ def var_mensual(mensual, n):
     plt.savefig(f"figuras/Primeros {n} meses vs el resto")
     plt.close()
 
+def song_plot(df, name, var = "streams"):
+    sng = df["start"].to_frame()
+    sng = sng.drop_duplicates("start").sort_values("start").reset_index(drop = True)
+    fig, ax = plt.subplots(figsize = (16,10))
+    sng = pd.merge(sng,df[df.track_name == name], how = "left")
+    pal = sns.cubehelix_palette(start=2, rot=0, dark=0.4, light=0.4, reverse=True, as_cmap=True)
+    sns.lineplot(x = "start", y = var, data = sng, hue=sng[var].isna().cumsum(),legend=False, markers=True, palette = pal)
+    plt.savefig(f"figuras/canciones/{name} - {var}")
+
 def graficar(df, mensual, semanal):
     for i in range(9,12):
         var_mensual(mensual, i)
@@ -152,7 +161,7 @@ def graficar(df, mensual, semanal):
     for i in aa:
         time_series(mensual.reset_index(), i, nombre = f"figuras/series tiempo mensual/timeserie {i}", aux = False)
 
-    heatmap(mensual, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
+    heatmap(semanal, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
     heatmap(df, vars = aa + ["position"], nombre = "figuras/mapas calor/heatmap global")
 
     for i in aa:
@@ -171,7 +180,7 @@ def graficar(df, mensual, semanal):
 
     for i in aa:
         time_series(df, i, trendline = "True", nombre = f"figuras/series tiempo global/timeserie_global {i}")
-    acotados = ["danceability", "duration_s","energy","instrumentalness","tempo"]
+    acotados = ["danceability", "duration","energy","instrumentalness","tempo"]
     heatmap(semanal, vars = acotados, nombre = "figuras/mapas calor/heatmap acotado")
 
 def main():
@@ -215,7 +224,7 @@ def main():
     for i in aa:
         time_series(mensual.reset_index(), i, nombre = f"figuras/series tiempo mensual/timeserie {i}", aux = False)
 
-    heatmap(mensual, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
+    heatmap(semanal, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
     heatmap(df, vars = aa + ["position"], nombre = "figuras/mapas calor/heatmap global")
 
     for i in aa:
@@ -234,7 +243,7 @@ def main():
 
     for i in aa:
         time_series(df, i, trendline = "True", nombre = f"figuras/series tiempo global/timeserie_global {i}")
-    acotados = ["danceability", "duration_s","energy","instrumentalness","tempo"]
+    acotados = ["danceability", "duration","energy","instrumentalness","tempo"]
     heatmap(semanal, vars = acotados, nombre = "figuras/mapas calor/heatmap acotado")
 
 if __name__ == "__main__":
