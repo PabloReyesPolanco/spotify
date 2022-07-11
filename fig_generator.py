@@ -28,18 +28,18 @@ def heatmap(df, nombre, vars = aa):
     df = df[vars]
     cormat = df.corr()
     f, ax = plt.subplots(figsize=(10,8))
-    sns.heatmap(cormat, vmax= .85, square=True)
+    sns.heatmap(cormat, vmax= .85, square=True).set(title=nombre.title())
     k = 10
     cols = cormat.nlargest(k,vars[2])[vars[2]].index
     cm = np.corrcoef(df[cols].values.T)
     sns.set(font_scale=1.25)
     hm = sns.heatmap(cm, cbar=False, annot=True, square=True, fmt=".2f", annot_kws={"size": 10}, yticklabels=cols.values, xticklabels=cols.values)
     plt.show()
-    plt.savefig(nombre, transparent = False)
+    plt.savefig("figuras/mapas calor/"+ nombre, transparent = False)
     plt.close()
 
 def pairplot(df, vars, nombre):
-    sns.pairplot(df[vars]) # ,"valence"
+    sns.pairplot(df[vars]).set(title=nombre.title())
     # plt.show()
     plt.savefig(nombre, transparent = False)
     plt.close()
@@ -63,7 +63,7 @@ def reg_plot(df, var1, var2, nombre):
     corr = pearsonr(df[var1], df[var2])
     corr = [np.round(c, 2) for c in corr] #add the coefficient to your graph
     text = 'r=%s' % (corr[0])
-    sns.regplot(x=var1, y=var2, data=df, color = spotify_green)
+    sns.regplot(x=var1, y=var2, data=df, color = spotify_green).set(title= nombre.title())
     ax.legend([text])
     plt.savefig(nombre, transparent = False)
     plt.close()
@@ -71,7 +71,7 @@ def reg_plot(df, var1, var2, nombre):
 def time_series(data, var, nombre ,trendline = False, rolling_average = False, IC = False,rolling_size = 4, aux = True):
     fig, ax = plt.subplots(figsize = (16,10))
     labels = []
-    sns.lineplot(data = data, x = "start", y = var , color = spotify_green)
+    sns.lineplot(data = data, x = "start", y = var , color = spotify_green).set(title = nombre.title())
     labels.append(var)
 
     if rolling_average:
@@ -114,12 +114,10 @@ def time_series(data, var, nombre ,trendline = False, rolling_average = False, I
     plt.savefig(nombre, transparent = False)
     plt.close()
 
-def barplot(df, var, nombre = "a"):
+def barplot(df, var, nombre = f"a"):
 
     fig, ax = plt.subplots(figsize = (16,10))
-
-    sns.barplot(data = df, x = "start", y = var , color = spotify_green, estimator=np.mean, ci=95,capsize=.2)
-
+    sns.barplot(data = df, x = "start", y = var , color = spotify_green, estimator=np.mean, ci=95,capsize=.2).set(title = nombre.title())
     plt.xticks(rotation = 'vertical')
     # plt.legend(labels=labels)
     # plt.show()
@@ -141,7 +139,13 @@ def var_mensual(mensual, n):
     aux.columns = ["feature", "valor", "periodo"]
 
     fig, ax = plt.subplots(figsize = (16,10))
-    sns.barplot(x='feature', y='valor', ci = "sd", data=aux, hue = "periodo", palette = [spotify_green, spotify_blue])
+    sns.barplot(
+        x='feature',
+        y='valor',
+        ci = "sd",
+        data=aux,
+        hue = "periodo",
+        palette = [spotify_green, spotify_blue]).set(title = f"Primeros {n} meses vs el resto".title())
     plt.savefig(f"figuras/Primeros {n} meses vs el resto")
     plt.close()
 
@@ -151,7 +155,9 @@ def song_plot(df, name, var = "streams"):
     fig, ax = plt.subplots(figsize = (16,10))
     sng = pd.merge(sng,df[df.track_name == name], how = "left")
     pal = sns.cubehelix_palette(start=2, rot=0, dark=0.4, light=0.4, reverse=True, as_cmap=True)
-    sns.lineplot(x = "start", y = var, data = sng, hue=sng[var].isna().cumsum(),legend=False, markers=True, palette = pal)
+    sns.lineplot(x = "start", y = var, data = sng,
+                hue=sng[var].isna().cumsum(),legend=False,
+                markers=True, palette = pal).set(title = f"{name} - {var}" )
     plt.savefig(f"figuras/canciones/{name} - {var}")
 
 def graficar(df, mensual, semanal):
@@ -159,10 +165,10 @@ def graficar(df, mensual, semanal):
         var_mensual(mensual, i)
 
     for i in aa:
-        time_series(mensual.reset_index(), i, nombre = f"figuras/series tiempo mensual/timeserie {i}", aux = False)
+        time_series(mensual.reset_index(), i, nombre = f"figuras/series de tiempo/timeserie {i}", aux = False)
 
-    heatmap(semanal, vars = aa, nombre = "figuras/mapas calor/heatmap semanal")
-    heatmap(df, vars = aa + ["position"], nombre = "figuras/mapas calor/heatmap global")
+    heatmap(semanal, vars = aa, nombre = "heatmap semanal")
+    heatmap(df, vars = aa + ["position"], nombre = "heatmap global")
 
     for i in aa:
         histogram(semanal, i, nombre = f"figuras/histogramas/hist {i}")
