@@ -157,6 +157,7 @@ def song_plot(df, name, var = "streams"):
     sns.lineplot(x = "start", y = var, data = sng,
                 hue=sng[var].isna().cumsum(),legend=False,
                 markers=True, palette = pal).set_title(f"{name} - {var}", fontsize = 30)
+    name = name.replace(".","")
     plt.savefig(f"figuras/canciones/{name} - {var}")
     plt.close()
 
@@ -188,6 +189,12 @@ def graficar(df, mensual, semanal):
         time_series(df, i, trendline = "True", nombre = f"serie de tiempo {i} (global)")
     acotados = ["danceability", "duration","energy","instrumentalness","tempo"]
     heatmap(semanal, vars = acotados, nombre = "heatmap acotado")
+
+    canciones = ["All I Want for Christmas Is You", "Levitating", "Beggin'", "WAP (feat. Megan Thee Stallion)", "Dance Monkey"]
+    var = ["position", "streams"] 
+    for c in canciones:
+        for v in var:
+            song_plot(df, name = c, var = v)
 
 def main():
     df = pd.read_csv("https://raw.githubusercontent.com/PabloReyesPolanco/spotify/master/Spotify%20Weekly.csv")
