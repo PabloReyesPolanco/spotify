@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set_style("darkgrid")
 import numpy as np
 import matplotlib.dates as md
 from scipy.stats import pearsonr #calculate correlation coefficient
@@ -82,8 +83,9 @@ def time_series(data, var, nombre ,trendline = False, rolling_average = False, I
         data["x"] = [i for i in range(len(data))]
         slope, intercept, r_value, pv, se = stats.linregress(data["x"], data[var])
         data["reg"] = data["x"] * slope + intercept
+        r_square = np.corrcoef(data["reg"].to_numpy(),data[var].to_numpy())[0,1]**2
         sns.lineplot(data = data, x = "start", y = "reg", color = spotify_blue)
-        labels.append(f"Tendencia, r={r_value:.2f}")
+        labels.append(f"Tendencia, r-square={r_square:.2f}")
         if IC:
             data["sup"] = data["reg"] + 1.96 * data[var].std()/np.sqrt(len(data[var]))
             data["inf"] = data["reg"] - 1.96 *data[var].std()/np.sqrt(len(data[var]))
@@ -141,11 +143,10 @@ def var_mensual(mensual, n):
     sns.barplot(
         x='feature',
         y='valor',
-        ci = "sd",
         data=aux,
         hue = "periodo",
         palette = [spotify_green, spotify_blue]).set_title(f"Primeros {n} meses vs el resto".title(), fontsize = 30)
-    plt.savefig(f"figuras/Primeros {n} meses vs el resto")
+    plt.savefig(f"figuras/Primeros {n} meses vs el resto",transparent = False)
     plt.close()
 
 def song_plot(df, name, var = "streams"):
@@ -178,15 +179,15 @@ def graficar(df, mensual, semanal):
         for var2 in aa[it+1:]:
             reg_plot(semanal, var1, var2, nombre = f"regresion {var1} vs {var2} (semanal)")
 
-    for it, var1 in enumerate(aa):
-        for var2 in aa[it+1:]:
-            reg_plot(df, var1, var2, nombre = f"regresion {var1} vs {var2} (global)")
+   #for it, var1 in enumerate(aa):
+   #    for var2 in aa[it+1:]:
+   #        reg_plot(df, var1, var2, nombre = f"regresion {var1} vs {var2} (global)")
 
     for i in aa:
         time_series(semanal, i, trendline = True, nombre = f"serie de tiempo {i} (semanal)")
 
-    for i in aa:
-        time_series(df, i, trendline = "True", nombre = f"serie de tiempo {i} (global)")
+   #for i in aa:
+   #    time_series(df, i, trendline = "True", nombre = f"serie de tiempo {i} (global)")
     acotados = ["danceability", "duration","energy","instrumentalness","tempo"]
     heatmap(semanal, vars = acotados, nombre = "heatmap acotado")
 
